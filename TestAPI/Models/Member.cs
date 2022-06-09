@@ -1,9 +1,13 @@
-﻿namespace TestAPI.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TestAPI.Models
 {
     public class Member
     {
 
-        public int Id { get; set; }
+        public long Id { get; set; }
+
+        public int MemberNumber { get; set; }
 
         public string Name { get; set; } = String.Empty;
 
@@ -13,6 +17,18 @@
 
         public DateTime BirthDate { get; set; }
 
+        public int ClubId { get; set; }
+
+        [ForeignKey("ClubId")]
+        public Club Club { get; set; }
+
+        public int Age 
+        { 
+            get 
+            {
+                return (DateTime.Now.Year - BirthDate.Year);
+            } 
+        }
 
         public void Update(Member member)
         {
@@ -20,6 +36,7 @@
             LastName = member.LastName; 
             Barcode = member.Barcode;
             BirthDate = member.BirthDate;
+            MemberNumber = member.MemberNumber;
         }
     
     }

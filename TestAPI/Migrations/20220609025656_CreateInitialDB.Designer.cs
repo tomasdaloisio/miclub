@@ -12,8 +12,8 @@ using TestAPI.Data;
 namespace TestAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220608234316_CreateInitial")]
-    partial class CreateInitial
+    [Migration("20220609025656_CreateInitialDB")]
+    partial class CreateInitialDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,11 +26,11 @@ namespace TestAPI.Migrations
 
             modelBuilder.Entity("TestAPI.Models.Member", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Barcode")
                         .IsRequired()
@@ -42,6 +42,9 @@ namespace TestAPI.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MemberNumber")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()

@@ -11,5 +11,6 @@ namespace TestAPI.Data
         }
 
         public DbSet<Member> Members { get; set; }
+        public DbSet<Club> Clubs { get; set; }
     }
 }

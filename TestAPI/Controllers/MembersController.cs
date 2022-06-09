@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TestAPI.Models;
+using TestAPI.Repositories;
 
 namespace TestAPI.Controllers
 {
@@ -13,73 +14,63 @@ namespace TestAPI.Controllers
             _context = context;
         }
 
-        private static List<Member> members = new List<Member> { 
-            new Member { 
-                Id = 1,
-                Name = "Tomas",
-                LastName = "D'Aloisio",
-                BirthDate = new DateTime(1999, 03, 11)
-            },
-            new Member {
-                Id = 2,
-                Name = "Rocio",
-                LastName = "Albé",
-                BirthDate = new DateTime(2000, 06, 22)
-            }
-        };
         private readonly DataContext _context;
+
+        private IMembersRepository _membersRepository;
+        private IMembersRepository membersRepository
+        {
+            get
+            {
+                if (_membersRepository == null)
+                {
+                    _membersRepository = new MembersRepository(_context);
+                }
+                return _membersRepository;
+            }
+        }
 
         [HttpGet("GetMembers")]
         public async Task<ActionResult<List<Member>>> Get()
         {
-            return Ok(await _context.Members.ToListAsync());
+            return Ok(await membersRepository.GetMembers());
         }
 
         [HttpGet("GetMember/{id}")]
         public async Task<ActionResult<Member>> Get(int id)
         {
-            var member = members.FirstOrDefault(x => x.Id == id);
+            var member = await membersRepository.GetMemberAsync(id);
             
-            return member != null ? Ok(member) : BadRequest("No se encontró el socio para el nro indicado.");
+            return member != null ? Ok(member) : BadRequest($"No se encontró el socio para el nro indicado.({id})");
         }
 
         [HttpPost("AddMember")]
         public async Task<ActionResult<List<Member>>> AddMember(Member member)
         {
-            members.Add(member);
-            return Ok(members);        
+            membersRepository.AddMember(member);
+            return Ok(await membersRepository.GetMembers());
         }
 
         [HttpPut("UpdateMember")]
         public async Task<ActionResult<List<Member>>> UpdateMember(Member request)
         {
-            var member = members.FirstOrDefault(x => x.Id == request.Id);
+            membersRepository.UpdateMember(request);
 
-            if (member == null)
-            {
-                BadRequest("No se encontró el socio.");
-            }
-
-            member.Update(request);
-
-            return Ok(members);
+            return Ok(await membersRepository.GetMembers());
         }
 
-        [HttpDelete]
-        public async Task<ActionResult<List<Member>>> UpdateMember(int id)
+        [HttpDelete("RemoveMember/{id}")]
+        public async Task<ActionResult<List<Member>>> RemoveMember(int id)
         {
-            var member = members.FirstOrDefault(x => x.Id == id);
+            var member = _context.Members.FirstOrDefault(x => x.Id == id);
 
             if (member == null)
             {
-                BadRequest("No se encontró el socio.");
+                return BadRequest("No se encontró el socio.");
             }
 
-            members.Remove(member);
+            membersRepository.RemoveMember(member);
 
-            return Ok(members);
+            return Ok(await membersRepository.GetMembers());
         }
-
-
     }
 }
